@@ -39,10 +39,10 @@ __attribute__((visibility("hidden")))
 
 -(void)show {
 	FLEXManager *manager = [FLEXManager sharedManager];
-	SEL showSelector = NSSelectorFromString(@"showExplorer");
+	// SEL showSelector = NSSelectorFromString(@"showExplorer");
 	// SEL showSelector = @selector(showExplorer);
-	if (manager != nil && showSelector != NULL)
-		[manager performSelector:showSelector];
+	if (manager != nil)
+		[manager performSelector:@selector(showExplorer)];
 }
 
 -(void)inject {
