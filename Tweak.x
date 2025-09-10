@@ -96,5 +96,6 @@ static UILongPressGestureRecognizer *RegisterLongPressGesture(UIWindow *window, 
 %end
 
 %ctor {
-    [[NSNotificationCenter defaultCenter] addObserver:[AutoFLEX sharedInstance] selector:@selector(inject) name:UIApplicationDidBecomeActiveNotification object:nil];
+	%init();
+    // [[NSNotificationCenter defaultCenter] addObserver:[AutoFLEX sharedInstance] selector:@selector(inject) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
