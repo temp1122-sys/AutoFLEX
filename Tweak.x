@@ -7,9 +7,14 @@
 @interface UIStatusBarWindow : UIWindow @end
 
 __attribute__((visibility("hidden")))
-@interface AutoFLEX : NSObject {
-@private
-}
+
+@interface UIWindow (PrivateAutoFLEX)
+@property (nonatomic, strong) UILongPressGestureRecognizer *flexAllLongPress;
+@end
+
+@interface AutoFLEX : NSObject
++(instancetype)sharedInstance;
+-(void)show;
 @end
 
 @implementation AutoFLEX
@@ -32,11 +37,50 @@ __attribute__((visibility("hidden")))
     return self;
 }
 
+-(void)show {
+	FLEXManager *manager = [FLEXManager sharedManager];
+	SEL showSelector = @selector(showExplorer);
+	if (manager != nil && showSelector != NULL)
+		[manager performSelector:showSelector];
+}
+
 -(void)inject {
 	NSLog(@"Openning explorer: %@", [FLEXManager sharedManager]);
 	[[FLEXManager sharedManager] showExplorer];
 }
 @end
+
+static UILongPressGestureRecognizer *RegisterLongPressGesture(UIWindow *window, NSUInteger fingers) {
+	UILongPressGestureRecognizer *longPress = nil;
+	// Class flexWindowClass = GetFLXWindowClass();
+	// if (flexWindowClass == nil || ![window isKindOfClass:flexWindowClass]) {
+		longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:[AutoFLEX sharedInstance] action:@selector(show)];
+		longPress.numberOfTouchesRequired = fingers;
+		[window addGestureRecognizer:longPress];
+	// }
+	return longPress;
+}
+
+%hook UIWindow
+%property (nonatomic, strong) UILongPressGestureRecognizer *flexAllLongPress;
+
+-(void)becomeKeyWindow {
+	%orig();
+
+	if (self.flexAllLongPress == nil) {
+		self.flexAllLongPress = RegisterLongPressGesture(self, 3);
+	}
+}
+
+-(void)resignKeyWindow {
+	if (self.flexAllLongPress != nil) {
+		[self removeGestureRecognizer:self.flexAllLongPress];
+		self.flexAllLongPress = nil;
+	}
+
+	%orig();
+}
+%end
 
 %hook UIStatusBarWindow
 - (id)initWithFrame:(CGRect)frame {
